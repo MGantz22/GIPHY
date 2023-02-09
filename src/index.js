@@ -1,46 +1,30 @@
 import "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./css/styles.css";
-
-
+import SuperGif from "./superGif.js";
 // Business Logic
 
-class SearchWord {
-  constructor(inputWord) {
-    this.word = inputWord;
-  }
+function getGiphy(search) {
+  let promise = SuperGif.getGiphy();
+  promise.then(function(giphyArr) {
+    printElements(giphyArr);
+  }, function(error) {
+    printError(error);
+  });
 }
 
-function searchGiphy (search) {
-    
-  let promise = new Promise (function(resolve, reject) {
-    let request = new XMLHttpRequest();
-    const url = `https://api.giphy.com/v1/gifs/search?q=${search}&api_key=${process.env.API_KEY}`;
-  
-    request.addEventListener("loadend", function() {
-
-      const response = JSON.parse(this.responseText);
-      if (this.status === 200) {
-        resolve(response);
-      } else {
-        reject(response);
-      }
-    });
-
-    request.open("GET", url, true);
-    request.send();
-  });
-
-  // UI Logic
-  function printElements(apiResponse){
-
-  }
-
-  function handleFormSubmission(event) {
+// UI Logic
+function handleFormSubmission(event){
     event.preventDefault();
-  }
-
-  window.addEventListener("load", function() {
-    document.querySelector('form').addEventListener("submit", handleFormSubmission);
-  });
+    const search = document.getElementById('search').value;
+    getGiphy(search);
 }
+
+function printError(error) {
+  const errorType = Object.values(error[1]);
+  document.querySelector('#showResults').innerText = `There was an error: ${errorType[3]}`;
+}
+
+window.addEventListener("load", function() {
+  document.querySelector('form').addEventListener("submit", handleFormSubmission);
+});
